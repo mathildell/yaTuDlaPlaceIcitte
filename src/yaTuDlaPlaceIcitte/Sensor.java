@@ -6,28 +6,37 @@ import java.util.Random;
 
 
 public class Sensor implements Runnable {
-    private AtomicBoolean mustQuit = new AtomicBoolean(false);
     private long newTime = System.currentTimeMillis();
     private long lastTime = newTime;
-    private int rate = 1000; //1s
     private String str;
+    //private String filter1;
     private String lastTimeString;
     private Random rand = new Random();
+    private ConcurrentLinkedQueue<String> messages;
     public int randomInt = 0;
-    
 
-    ConcurrentLinkedQueue<String> messages;
-    Sensor(ConcurrentLinkedQueue<String> messages){
-       this.messages = messages;
-    }
+    private boolean mustQuit;
+    private int id;
+    private int range;
+    private int rate;
+
+    public Sensor(boolean mustQuit, int i, int range, int rate) {    
+		this.messages = Main.messages;                                                             
+    	this.mustQuit = mustQuit;                                                                                                
+    	this.id = i;                                                                                                             
+    	this.range = range;                                                                                                             
+    	this.rate = rate;                                              
+    }  
     
     public void run() {
-    	while(mustQuit.get() == false){
+    	while(!mustQuit){
     		newTime = System.currentTimeMillis();
     		
-    		this.randomInt = rand.nextInt(2);
+    		randomInt = rand.nextInt(2);
 	        
     		if(newTime - lastTime > rate){
+
+        	    
     			lastTime = newTime;
     			
     			str = createString();
@@ -43,7 +52,7 @@ public class Sensor implements Runnable {
     }
     
     public String createString(){
-    	String string = "ID:Rxxx_P" + this.randomInt + ":OPT";
+    	String string = id + ":R" + range + "_P" + randomInt + ":OPT";
     	return string;
     }
     
@@ -53,13 +62,15 @@ public class Sensor implements Runnable {
         boolean hasCarParked = (Integer.parseInt(character) == 1) ? true : false;
        
     	if(hasCarParked){
-        	return "DÉTECTÉ";
+        	return "DÉTECTÉ (" + string + ")";
     	}else{
-        	return "N/A";
+        	return "N/A (" + string + ")";
     	}
     }
     
     public Boolean filter2(String string){
+		
+	    
     	if(lastTimeString != null){
     		if(lastTimeString == string){
     			return false;
@@ -73,6 +84,4 @@ public class Sensor implements Runnable {
     	}
     }
     
-    public static void main(String args[]) {
-    }
 }
