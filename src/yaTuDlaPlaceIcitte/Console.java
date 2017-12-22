@@ -13,11 +13,12 @@ public class Console implements Runnable {
     	while(true){
     		try {
     			input = br.readLine();
+    			//Si l'utilisateur input "q" et que la variable mustQuit est fausse
     	        if ("q".equals(input) && Main.mustQuit.get() == false) {
+    	        	//On arrête le process
     	            Main.mustQuit.set(true);
-    	            System.out.println("================ Process stopped ================");
+    	        	System.out.println("========================= Process stopped =========================");
     	        }
-    	        
     		} catch (IOException e) {
     			e.printStackTrace();
     		}
