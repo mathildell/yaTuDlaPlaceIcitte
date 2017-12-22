@@ -1,6 +1,6 @@
 package yaTuDlaPlaceIcitte;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.Random;
 
 
@@ -12,15 +12,15 @@ public class Sensor implements Runnable {
     //private String filter1;
     private String lastTimeString;
     private Random rand = new Random();
-    private ConcurrentLinkedQueue<String> messages;
+    private LinkedBlockingQueue<String> messages;
     public int randomInt = 0;
 
-    private boolean mustQuit;
+    private AtomicBoolean mustQuit;
     private int id;
     private int range;
     private int rate;
 
-    public Sensor(boolean mustQuit, int i, int range, int rate) {    
+    public Sensor(AtomicBoolean mustQuit, int i, int range, int rate) {    
 		this.messages = Main.messages;                                                             
     	this.mustQuit = mustQuit;                                                                                                
     	this.id = i;                                                                                                             
@@ -29,7 +29,7 @@ public class Sensor implements Runnable {
     }  
     
     public void run() {
-    	while(!mustQuit){
+    	while(!mustQuit.get()){
     		newTime = System.currentTimeMillis();
     		
     		randomInt = rand.nextInt(2);
@@ -41,7 +41,7 @@ public class Sensor implements Runnable {
     			
     			str = createString();
     			str = filter1(str);
-    			Boolean isNew = filter2(str);
+    			boolean isNew = filter2(str);
     			
     			if(isNew){
     				messages.add(str);
@@ -68,11 +68,9 @@ public class Sensor implements Runnable {
     	}
     }
     
-    public Boolean filter2(String string){
-		
-	    
+    public boolean filter2(String string){
     	if(lastTimeString != null){
-    		if(lastTimeString == string){
+    		if(lastTimeString.equals(string)){
     			return false;
     		}else{
 	    		lastTimeString = string;
